@@ -153,6 +153,28 @@ type Plan = 'free' | 'pro' | 'enterprise';
 enum Plan { Free = 'free', Pro = 'pro', Enterprise = 'enterprise' }
 ```
 
+**When the members must also exist as a runtime value, lock a plain object
+with `as const` instead of an `enum`.** The object is the value; the union
+derives from it, so one edit covers both — and call sites can map, iterate,
+or switch over the real values:
+
+```typescript
+const PLAN = { free: 'free', pro: 'pro', enterprise: 'enterprise' } as const;
+type Plan = (typeof PLAN)[keyof typeof PLAN];
+```
+
+**Use `as const` to stop widening.** In a plain object or array, a literal
+widens to `string`, `boolean`, or `number[]`, and the widened type accepts
+values the literal one would reject. Locking catches the typo at compile time:
+
+```typescript
+// UNCLEAR: state is string, so 'actvie' compiles
+const status = { state: 'active' };
+
+// CLEAR: state is 'active', so 'actvie' is a compile error
+const status = { state: 'active' } as const;
+```
+
 **Prefer `if` branches over nested ternaries.** A single ternary for one
 assignment is fine; a second `?` is the signal to rewrite into explicit
 branches or a small named function. This is the same clarity test as in
@@ -385,6 +407,7 @@ Scan for these patterns — each one is a concrete signal, not a vague smell:
 | Unnecessary abstractions | Wrapper that adds no value | Inline the wrapper, call the underlying function directly |
 | Over-engineered patterns | Factory-for-a-factory, strategy-with-one-strategy | Replace with the simple direct approach |
 | Redundant type assertions | Casting to a type that's already inferred | Remove the assertion |
+| Widened literal types | `const config = { debug: true }` infers `debug: boolean`, not the literal | Lock with `as const` |
 
 ### Step 3: Apply Changes Incrementally
 
