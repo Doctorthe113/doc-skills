@@ -8,6 +8,8 @@ disable-model-invocation: true
 
 Use this skill for an unusually strict review focused on implementation quality, maintainability, abstraction quality, and codebase health.
 
+This skill is review-only: the output is a written review with findings and concrete recommendations. Every change is proposed in the report, never applied — do not edit, refactor, or commit any files.
+
 Above all, this skill should push the reviewer to be **ambitious** about code structure. Do not merely identify local cleanup opportunities. Actively search for "code judo" moves: restructurings that preserve behavior while making the implementation dramatically simpler, smaller, more direct, and more elegant.
 
 ## Core Prompt
@@ -16,8 +18,8 @@ Start from this baseline:
 
 > Perform a deep code quality audit of the current branch's changes.
 > Rethink how to structure / implement the changes to meaningfully improve code quality without impacting behavior.
-> Work to improve abstractions, modularity, reduce Spaghetti code, improve succinctness and legibility.
-> Be ambitious, if there is a clear path to improving the implementation that involves restructuring some of the codebase, go for it.
+> Recommend improvements in abstractions, modularity, succinctness, and legibility, and ways to reduce spaghetti code.
+> Be ambitious: if there is a clear path to improving the implementation that involves restructuring some of the codebase, propose it in the review.
 > Be extremely thorough and rigorous. Measure twice, cut once.
 
 ## Non-Negotiable Additional Standards
@@ -68,6 +70,30 @@ Apply the baseline prompt above, plus these explicit review rules:
    - If related updates can leave state half-applied, push for a more atomic structure.
    - Do not over-index on micro-optimizations, but do flag avoidable orchestration complexity that makes the implementation more brittle.
 
+8. **Enforce TypeScript and naming conventions that keep code direct.**
+   - Prefer inferred types for routine work; annotate boundaries, and hoist recurring shapes into a named `type` alias near the data source so callers share one contract.
+   - Prefer string literal unions over `enum`: one union is the whole contract; an `enum` is two things to keep in sync. When members must exist at runtime, lock a plain object with `as const` and derive the union from it.
+   - Use `as const` to stop widening: a literal that widens to `string` or `boolean` silently accepts values the literal would reject.
+   - Prefer `if` branches over nested ternaries; a second `?` is the signal to rewrite into explicit branches or a small named function.
+   - Prefer simple `Record<string, T>` maps over derived-key types such as `Record<keyof typeof X, Y>`; write keys out where they are used.
+   - Flag vague or unit-less names (`data`, `temp`, `timeout`), non-predicate booleans (`isValid`, `hasPermission`), and ornate names doing too much.
+
+9. **Enforce comment discipline.**
+   - Comments must carry what the code cannot express; delete restatements of the code.
+   - A one-line function comment answers context, what it does, and what it returns; skip it when the name and signature already answer all three.
+   - Require JSDoc on exported, public, utility, and non-obvious functions: context, why it exists, inputs, return value, and important failure behavior.
+   - Section comments name a group's goal, not its mechanics.
+   - Flag comments inside markup except short layout separators, and keep comment lines at 80 characters or fewer.
+
+10. **Enforce fail-early (negative-space) structure.**
+    - Invalid, undefined, and unauthorized states are checked first and return or throw immediately; the valid path comes last and stays straight.
+    - Flag nested if/else where guard clauses would flatten the function into a list of "if this is wrong, stop" checks followed by the happy path.
+
+11. **Enforce error-handling hygiene.**
+    - User-facing errors: one sentence in plain words telling the user what to do; no stack traces, HTTP codes, internal names, or technical terms. Log diagnostic details internally instead.
+    - Internal errors: detailed (log the failing operation, its inputs, the underlying error, and where it happened) and graceful (fail at the right layer, leave state intact or rolled back, surface a typed, actionable error).
+    - Flag error handling removed or weakened by the change.
+
 ## Primary Review Questions
 
 For every meaningful change, ask:
@@ -107,6 +133,13 @@ Escalate findings when you see:
 - Logic added in the wrong layer/package when it should live somewhere more central.
 - Sequential async flow where obviously independent work could stay simpler and clearer with parallel execution.
 - Partial-update logic that leaves state less atomic than necessary.
+- `enum` usage where a string literal union is the whole contract, or widened literals that should be locked with `as const`.
+- Nested ternaries where `if` branches or a small named function would read faster.
+- Vague, unit-less, or misleading names.
+- Comments that restate the code, missing JSDoc on exported or non-obvious functions, or section comments describing mechanics instead of goals.
+- Valid-state-first functions where fail-early guard clauses would flatten the nesting.
+- User-facing errors that leak stack traces, HTTP codes, or internal names; internal errors that log too little or fail ungracefully.
+- Error handling removed or weakened by the change.
 
 ## Preferred Remedies
 
@@ -179,6 +212,7 @@ The bar for approval is:
 - no unnecessary wrapper/cast/optionality churn obscuring the real design
 - no clear architecture-boundary leak or avoidable canonical-helper duplication
 - no missed opportunity for an obvious decomposition that would materially improve maintainability
+- no violation of the type, naming, comment, fail-early, or error-handling standards above
 
 Treat these as presumptive blockers unless the author can justify them clearly:
 

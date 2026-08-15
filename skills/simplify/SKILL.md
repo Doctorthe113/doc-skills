@@ -168,10 +168,10 @@ widens to `string`, `boolean`, or `number[]`, and the widened type accepts
 values the literal one would reject. Locking catches the typo at compile time:
 
 ```typescript
-// UNCLEAR: state is string, so 'actvie' compiles
+// UNCLEAR: state is string, so 'active' compiles
 const status = { state: 'active' };
 
-// CLEAR: state is 'active', so 'actvie' is a compile error
+// CLEAR: state is 'active', so 'active' is a compile error
 const status = { state: 'active' } as const;
 ```
 
@@ -231,8 +231,9 @@ not kept.
 
 ## Comments
 
-Comments are part of the simplification. The goal is a file the next reader —
-human or agent — can follow without re-deriving what each region is for. Add
+Comments are part of the simplification. The goal is for the next reader —
+human or agent — to follow the file without re-deriving what each region is
+for. Add
 comments that carry information the code cannot express; delete the rest.
 Every comment must earn its tokens: it either orients the reader or it is
 noise.
