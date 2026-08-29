@@ -37,7 +37,11 @@ When the change set includes TypeScript, apply every rule below as a project-gui
 - When members must exist at runtime, lock a plain object with `as const` and derive the union from it.
 - Flag a literal that widens to `string`, `boolean`, or `number[]` where `as const` would catch a typo.
 - A second `?` in a ternary is a candidate: rewrite as `if` branches or a small named function.
-- Flag `any`. Use a specific type or `unknown` with narrowing. Confine an unavoidable escape hatch to one adapter at the boundary.
+- Use specific named input types and parser-backed boundary adapters for
+  untrusted data, then return a specific typed shape. Record a violation for
+  `any`, `unknown`, `object`, or unsafe dictionary types at a function
+  boundary. Keep any unavoidable cast inside the adapter and require a
+  comment documenting its checked invariant.
 - Prefer `Record<string, T>` for a homogeneous string-keyed map. When keys are known, write them out; flag `Record<keyof typeof X, Y>` that hides the contract.
 
 **Naming**

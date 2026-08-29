@@ -180,12 +180,13 @@ assignment is fine; a second `?` is the signal to rewrite into explicit
 branches or a small named function. This is the same clarity test as in
 Prefer Clarity Over Cleverness above.
 
-**Use a specific type or `unknown` with narrowing instead of `any`.** `any`
-silences the compiler and infects every call site with unchecked assumptions;
-`unknown` forces the narrowing check that is the point of the type system.
-When an escape hatch is truly necessary — untyped third-party data, dynamic
-config — confine it: cast in one narrow adapter at the boundary and return a
-specific typed shape from it, so the `any` never leaks into business logic.
+**Use specific boundary contracts and parse untrusted data once.** `any`,
+`unknown`, `object`, and unsafe dictionaries hide the input contract and let
+unchecked assumptions spread. For untyped third-party data or dynamic config,
+use the repository's approved boundary parser with a concrete raw-input type,
+then return a specific named shape. Keep an unavoidable cast inside that
+adapter and document its checked invariant; business logic should receive only
+typed values.
 
 ```typescript
 // UNCLEAR: any silences the compiler and leaks through the app
@@ -193,10 +194,10 @@ function getFeatureFlags(config: any): any {
   return config.featureFlags ?? {};
 }
 
-// CLEAR: unknown, narrowed once at the boundary
-function getFeatureFlags(config: unknown): Record<string, boolean> {
-  if (!isConfig(config)) throw new Error('invalid config');
-  return config.featureFlags ?? {};
+// CLEAR: parse at the boundary and pass a specific shape inward
+function getFeatureFlags(config: FeatureConfigInput): Record<string, boolean> {
+  const parsedConfig = parseFeatureConfig(config);
+  return parsedConfig.featureFlags ?? {};
 }
 ```
 
