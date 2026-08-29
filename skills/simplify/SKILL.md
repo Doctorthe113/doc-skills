@@ -5,7 +5,7 @@ description: Simplify code for clarity without changing behavior, and apply type
 
 # Simplify
 
-> Inspired by the [Claude Code Simplifier plugin](https://github.com/anthropics/claude-plugins-official/blob/main/plugins/code-simplifier/agents/code-simplifier.md). Adapted here as a model-agnostic, process-driven skill for any AI coding agent.
+> A model-agnostic, process-driven skill for simplifying code without changing behavior.
 
 ## Overview
 
