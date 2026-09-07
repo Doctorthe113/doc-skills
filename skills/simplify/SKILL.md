@@ -5,11 +5,11 @@ description: Simplify code for clarity without changing behavior, and apply type
 
 # Simplify
 
-> A model-agnostic, process-driven skill for simplifying code without changing behavior.
+> A model-agnostic, process-driven skill for simplifying code without changing behavior, with a strong bias toward deletion and reuse over writing new code.
 
 ## Overview
 
-Simplify code by reducing complexity while preserving exact behavior. The goal is not fewer lines — it's code that is easier to read, understand, modify, and debug. Comments are in scope: add the ones that carry context the code cannot express, and delete the ones that restate it. Every simplification must pass a simple test: "Would a new team member understand this faster than the original?"
+Simplify code by reducing complexity while preserving exact behavior. The goal is not fewer lines — it's code that is easier to read, understand, modify, and debug. Comments are in scope: add the ones that carry context the code cannot express, and delete the ones that restate it. Every simplification must pass a simple test: "Would a new team member understand this faster than the original?" The strongest move is deletion — the best code is code that never needed to exist — and the second strongest is reuse: never rewrite what the codebase, the standard library, or an installed dependency already provides.
 
 ## When to Use
 
@@ -46,7 +46,7 @@ ASK BEFORE EVERY CHANGE:
 Simplification means making code more consistent with the codebase, not imposing external preferences. Before simplifying:
 
 ```
-1. Read CLAUDE.md / project conventions
+1. Read AGENT.md / project conventions
 2. Study how neighboring code handles similar patterns
 3. Match the project's style for:
    - Import ordering and module system
@@ -98,6 +98,11 @@ Simplification has a failure mode: over-simplification. Watch for these traps:
 - **Removing "unnecessary" abstraction** — some abstractions exist for extensibility or testability, not complexity
 - **Optimizing for line count** — fewer lines is not the goal; easier comprehension is
 
+When a simplification deliberately keeps a weaker implementation with a known
+ceiling (an O(n²) scan, a naive heuristic, an in-memory cache), leave a
+comment naming the ceiling and the upgrade path — an undocumented corner-cut
+is a bug waiting for a ticket.
+
 ### 5. Scope to What Changed
 
 Default to simplifying recently modified code. Avoid drive-by refactors of unrelated code unless explicitly asked to broaden scope. Unscoped simplification creates noise in diffs and risks unintended regressions.
@@ -112,7 +117,34 @@ different reasons to change is not duplication, and a speculative extraction
 no call site uses is over-abstraction — see Maintain Balance. Step 2's
 redundancy table lists the signals.
 
-### 7. Fail Early (Negative-Space Programming)
+### 7. Delete Over Add
+
+The strongest simplification is code removed, not code rewritten. Hunt for
+what no longer needs to exist: exports, props, options, and branches nothing
+references; speculative generality ("for later" wrappers, config knobs
+nothing sets); boilerplate nobody asked for. Prefer the boring approach over
+the clever one, and the fewest files that work — deletion beats refactoring,
+and refactoring beats rewriting.
+
+### 8. Reuse Before Writing
+
+When a simplification seems to need new code — a parser, a clamp, a
+formatter — stop at the first source that already provides it:
+
+```
+1. Already in this codebase?  → reuse it, don't rewrite it
+2. Standard library?          → use it
+3. Installed dependency?      → use it
+4. Only then: write the minimum that works
+```
+
+Never add a new dependency during a simplification. Do not promote native
+browser elements above this ladder either: a native date picker, select, or
+dialog behaves differently browser to browser, so swapping an established
+external component for a native one buys inconsistency, not simplicity. The
+ladder ends at the installed dependency, not the platform.
+
+### 9. Fail Early (Negative-Space Programming)
 
 Check the undefined, invalid, and unauthorized states first and return or
 throw immediately, so the valid path comes last and stays straight. Guard
@@ -411,6 +443,14 @@ Scan for these patterns — each one is a concrete signal, not a vague smell:
 | Redundant type assertions | Casting to a type that's already inferred | Remove the assertion |
 | Widened literal types | `const config = { debug: true }` infers `debug: boolean`, not the literal | Lock with `as const` |
 
+**Necessity (YAGNI):**
+
+| Pattern | Signal | Simplification |
+|---------|--------|----------------|
+| Dead feature surface | Export, prop, option, or route nothing references | Delete it; re-add when a caller appears |
+| Speculative generality | Wrapper "for later", config knob nothing sets | Replace with the direct call |
+| Boilerplate nobody asked for | Pass-through files, ritual setup layers | Collapse; fewest files that work |
+
 ### Step 3: Apply Changes Incrementally
 
 Make one simplification at a time. Run tests after each change. **Submit refactoring changes separately from feature or bug fix changes.** A PR that refactors and adds a feature is two PRs — split them.
@@ -565,6 +605,8 @@ function UserBadge({ user }: Props) {
 | "This abstraction might be useful later" | Don't preserve speculative abstractions. If it's not used now, it's complexity without value. Remove it and re-add when needed. |
 | "The original author must have had a reason" | Maybe. Check git blame — apply Chesterton's Fence. But accumulated complexity often has no reason; it's just the residue of iteration under pressure. |
 | "I'll refactor while adding this feature" | Separate refactoring from feature work. Mixed changes are harder to review, revert, and understand in history. |
+| "A small new library would make this cleaner" | Simplification never adds dependencies. Check the codebase, the standard library, and installed dependencies first; if none fits, the current version stays. |
+| "The browser has a native component for this" | Native UI behavior varies browser to browser. Keep the established external component; a native swap trades cross-browser consistency for a smaller diff. |
 
 ## Red Flags
 
@@ -575,6 +617,8 @@ function UserBadge({ user }: Props) {
 - Simplifying code you don't fully understand
 - Batching many simplifications into one large, hard-to-review commit
 - Refactoring code outside the scope of the current task without being asked
+- Adding a new dependency in the middle of a simplification
+- Swapping an established external UI component for a native platform element (date picker, select, dialog)
 
 ## Verification
 
@@ -593,3 +637,6 @@ After completing a simplification pass:
 - [ ] No error handling was removed or weakened
 - [ ] No dead code was left behind (unused imports, unreachable branches)
 - [ ] A teammate or review agent would approve the change as a net improvement
+- [ ] Replacements came from the codebase, standard library, or installed dependencies — no new dependency added
+- [ ] No established external UI component was swapped for a native platform one
+- [ ] Deliberate corner-cuts carry a comment naming the ceiling and upgrade path
