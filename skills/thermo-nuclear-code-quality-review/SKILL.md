@@ -75,8 +75,8 @@ Apply the baseline prompt above, plus these explicit review rules:
    - Prefer string literal unions over `enum`: one union is the whole contract; an `enum` is two things to keep in sync. When members must exist at runtime, lock a plain object with `as const` and derive the union from it.
    - Use `as const` to stop widening: a literal that widens to `string` or `boolean` silently accepts values the literal would reject.
    - Prefer `if` branches over nested ternaries; a second `?` is the signal to rewrite into explicit branches or a small named function.
-   - Prefer simple `Record<string, T>` maps over derived-key types such as `Record<keyof typeof X, Y>`; write keys out where they are used.
-   - Flag vague or unit-less names (`data`, `temp`, `timeout`), non-predicate booleans (`isValid`, `hasPermission`), and ornate names doing too much.
+   - Let inference type maps; derive fixed keys with `keyof typeof` from the `as const` source instead of hand-writing them; reserve `Record<string, T>` for genuinely dynamic keys.
+   - Flag vague or unit-less names (`data`, `temp`, `timeout`), booleans without an `is`/`has` prefix (`isValid` and `hasPermission` are the required shape), and ornate names doing too much.
 
 9. **Enforce comment discipline.**
    - Comments must carry what the code cannot express; delete restatements of the code.

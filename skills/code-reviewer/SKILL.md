@@ -42,7 +42,7 @@ When the change set includes TypeScript, apply every rule below as a project-gui
   `any`, `unknown`, `object`, or unsafe dictionary types at a function
   boundary. Keep any unavoidable cast inside the adapter and require a
   comment documenting its checked invariant.
-- Prefer `Record<string, T>` for a homogeneous string-keyed map. When keys are known, write them out; flag `Record<keyof typeof X, Y>` that hides the contract.
+- Let inference type maps; when a map must cover every key of an `as const` object, derive them with `keyof typeof` — flag hand-written key unions that duplicate the source and go stale. Reserve `Record<string, T>` for genuinely dynamic keys.
 
 **Naming**
 
@@ -81,8 +81,8 @@ Rate each potential issue on 0–100:
 - **0** — Not confident at all. False positive, or pre-existing.
 - **25** — Somewhat confident. Might be real, might be a false positive. If stylistic and not named in project rules or Type and Naming, lower.
 - **50** — Moderately confident. Real issue, but possibly a nitpick or rare in practice. Not very important relative to the rest of the changes.
-- **75** — Highly confident. Verified twice. Likely to be hit in practice. The existing approach is insufficient. Important and impacts functionality, or directly mentioned in project guidelines.
-- **100** — Absolutely certain. Confirmed this will happen frequently. Direct evidence.
+- **75** — Highly confident. Verified twice. Likely to be hit in practice. The existing approach is insufficient. Important and impacts functionality.
+- **100** — Absolutely certain. Confirmed this will happen frequently, or a clear violation of an explicit project rule or Type and Naming rule. Direct evidence.
 
 **Only report issues with confidence ≥ 80.**
 

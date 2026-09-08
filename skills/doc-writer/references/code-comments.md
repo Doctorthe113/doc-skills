@@ -1,11 +1,11 @@
 # Code comments
 
-1. **Function context.** Add one concise comment directly above every function, method, or assigned function whose name and signature do not already explain it. State what the function does, why it exists, and what it returns in simple words. Skip the comment when the name and signature answer those questions; `getUser(id: string): Promise<User>` needs nothing, and a comment that restates the name is noise.
+1. **Function context.** Add one concise comment directly above every function, method, or assigned function whose name and signature do not already explain it. State what the function does, why it exists, and what it returns in simple words. Skip the comment when the name and signature answer those questions; `getUser(id: string): Promise<User>` needs nothing, and a comment that restates the name is noise. For helpers, utilities, and exported or public functions, use JSDoc instead — a single-line JSDoc for a small helper, or a multi-line one that adds parameter and return types, why the function exists, and failure behavior.
 
 ```ts
-// Add an item to the user's cart; addToCart enforces ownership and stock.
-async function addItemToCart(userId: string, itemId: string): Promise<Cart> {
-  return addToCart(userId, itemId);
+// Merge the guest cart into the user's cart, keeping the higher quantity.
+function mergeCarts(guestCart: Cart, userCart: Cart): Cart {
+  ...
 }
 ```
 
@@ -27,7 +27,7 @@ async function addItemToCart(req: Request, res: Response): Promise<Response> {
 
 3. **Comment size and quality.** Keep comments small, concise, and informative. A good comment gives context. A weak comment repeats the function name, next line, or obvious syntax; uses a vague label such as `// Handle edge case`; records temporary history; or describes behavior the code does not enforce.
 
-4. **File sections.** Use one single-line comment above each major section of a file, immediately before the section it labels. Use plain labels such as `// Types`, `// Constants`, or `// Request handlers`.
+4. **File sections.** Use one single-line comment above each major section of a file, immediately before the section it labels. Use plain labels such as `// Types`, `// Global constants`, or `// Request handlers`.
 
 ```ts
 // Global constants

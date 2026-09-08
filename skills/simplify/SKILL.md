@@ -5,11 +5,9 @@ description: Simplify code for clarity without changing behavior, and apply type
 
 # Simplify
 
-> A model-agnostic, process-driven skill for simplifying code without changing behavior, with a strong bias toward deletion and reuse over writing new code.
-
 ## Overview
 
-Simplify code by reducing complexity while preserving exact behavior. The goal is not fewer lines — it's code that is easier to read, understand, modify, and debug. Comments are in scope: add the ones that carry context the code cannot express, and delete the ones that restate it. Every simplification must pass a simple test: "Would a new team member understand this faster than the original?" The strongest move is deletion — the best code is code that never needed to exist — and the second strongest is reuse: never rewrite what the codebase, the standard library, or an installed dependency already provides.
+Simplify code by reducing complexity while preserving exact behavior. The goal is not fewer lines — it's code that is easier to read, understand, modify, and debug. Comments are in scope: add the ones that carry context the code cannot express, and delete the ones that restate it.
 
 ## When to Use
 
@@ -31,12 +29,12 @@ Simplify code by reducing complexity while preserving exact behavior. The goal i
 
 ### 1. Preserve Behavior Exactly
 
-Don't change what the code does — only how it expresses it. All inputs, outputs, side effects, error behavior, and edge cases must remain identical. If you're not sure a simplification preserves behavior, don't make it.
+Don't change what the code does — only how it expresses it. All inputs, outputs, side effects, error behavior, and edge cases must remain identical, with one sanctioned exception: error handling may be improved to follow the conventions in Error Handling below. If you're not sure a simplification preserves behavior, don't make it.
 
 ```
 ASK BEFORE EVERY CHANGE:
 → Does this produce the same output for every input?
-→ Does this maintain the same error behavior?
+→ Does this maintain the same error behavior? (Error Handling improvements are the one exception)
 → Does this preserve the same side effects and ordering?
 → Do all existing tests still pass without modification?
 ```
@@ -46,7 +44,7 @@ ASK BEFORE EVERY CHANGE:
 Simplification means making code more consistent with the codebase, not imposing external preferences. Before simplifying:
 
 ```
-1. Read AGENT.md / project conventions
+1. Read AGENTS.md / project conventions
 2. Study how neighboring code handles similar patterns
 3. Match the project's style for:
    - Import ordering and module system
@@ -55,8 +53,6 @@ Simplification means making code more consistent with the codebase, not imposing
    - Error handling patterns
    - Type annotation depth
 ```
-
-Simplification that breaks project consistency is not simplification — it's churn.
 
 ### 3. Prefer Clarity Over Cleverness
 
@@ -95,17 +91,16 @@ Simplification has a failure mode: over-simplification. Watch for these traps:
 
 - **Inlining too aggressively** — removing a helper that gave a concept a name makes the call site harder to read
 - **Combining unrelated logic** — two simple functions merged into one complex function is not simpler
-- **Removing "unnecessary" abstraction** — some abstractions exist for extensibility or testability, not complexity
-- **Optimizing for line count** — fewer lines is not the goal; easier comprehension is
+- **Removing "unnecessary" abstraction** — some abstractions exist for extensibility or testability, not complexity. That protection counts only when something exercises the abstraction today — a caller, or a mock in tests; a seam nothing uses is speculative, and Step 2's Necessity table applies.
 
 When a simplification deliberately keeps a weaker implementation with a known
 ceiling (an O(n²) scan, a naive heuristic, an in-memory cache), leave a
 comment naming the ceiling and the upgrade path — an undocumented corner-cut
 is a bug waiting for a ticket.
 
-### 5. Scope to What Changed
+### 5. Stay in Scope
 
-Default to simplifying recently modified code. Avoid drive-by refactors of unrelated code unless explicitly asked to broaden scope. Unscoped simplification creates noise in diffs and risks unintended regressions.
+Simplify only within the scope the user or another agent defines — whether that is recently modified files or older code the task names. Work outside that scope creates noise in diffs and risks unintended regressions.
 
 ### 6. Reuse Genuinely Repeated Logic (DRY)
 
@@ -164,8 +159,9 @@ and a change that moves away needs a reason.
 work and annotate the boundaries instead. When a stable or complex shape
 recurs — an API response, a config object, a state model — hoist it into a
 named `type` alias near the data source so every caller shares one contract.
-Prefer aliases over `interface`s when the codebase has no established pattern;
-follow the existing pattern when it has one.
+Prefer `type` aliases over `interface`s; reach for an `interface` only when it
+measurably improves the codebase or an interface-exclusive feature such as
+`extends` is genuinely needed — treat those as a last resort.
 
 **Use TypeScript-only syntax sparingly for readable code.** `enum`,
 decorators, namespaces, parameter properties, conditional types, and
@@ -207,10 +203,12 @@ const status = { state: 'active' };
 const status = { state: 'active' } as const;
 ```
 
-**Prefer `if` branches over nested ternaries.** A single ternary for one
-assignment is fine; a second `?` is the signal to rewrite into explicit
-branches or a small named function. This is the same clarity test as in
-Prefer Clarity Over Cleverness above.
+**Rewrite nested ternaries; otherwise keep the more readable form.** A single
+ternary for one assignment is fine; a second `?` is the signal to rewrite into
+explicit branches or a small named function. When an `if/else` block and a
+ternary are equally readable, prefer the ternary — the goal is less code at
+equal readability. This is the same clarity test as in Prefer Clarity Over
+Cleverness above.
 
 **Use specific boundary contracts and parse untrusted data once.** `any`,
 `unknown`, `object`, and unsafe dictionaries hide the input contract and let
@@ -233,22 +231,33 @@ function getFeatureFlags(config: FeatureConfigInput): Record<string, boolean> {
 }
 ```
 
-**Use simple `Record<string, T>` maps when clearer than index signatures.**
-For a homogeneous string-keyed map, `Record<string, T>` says the same thing
-as `{ [key: string]: T }` in fewer tokens; reserve index signatures for
-shapes with extra structure. Avoid complex union-key mappings such as
-`Record<keyof typeof X, Y>`: when the keys are known, write them out — keys
-hidden behind a derived type make readers chase the definition:
+**Let inference type maps; reach for `Record` only when you must.** A plain
+object literal infers its exact keys, so most maps need no annotation. When a
+map must cover every key of an `as const` object, derive the keys with
+`keyof typeof` instead of hand-writing them — one source of truth, so one
+edit covers both:
 
 ```typescript
 const STATUS = { active: 'active', archived: 'archived' } as const;
 
-// UNCLEAR: keys derived from a value object, hidden from the reader
-const labels: Record<keyof typeof STATUS, string> = { ... };
+// CLEAR: keys derived from STATUS; adding a key updates the contract
+const labels: Record<keyof typeof STATUS, string> = {
+  active: 'Active',
+  archived: 'Archived',
+};
 
-// CLEAR: the keys are the contract, visible where used
-const labels: Record<'active' | 'archived', string> = { ... };
+// UNCLEAR: a hand-written duplicate of STATUS's keys — adding a key to
+// STATUS silently leaves this map incomplete
+const labels: Record<'active' | 'archived', string> = {
+  active: 'Active',
+  archived: 'Archived',
+};
 ```
+
+For genuinely dynamic keys, `Record<string, T>` says the same as
+`{ [key: string]: T }` in fewer tokens — reach for it first. To validate a
+const object's shape while keeping literal inference, use
+`as const satisfies Record<string, T>`.
 
 ### Naming
 
@@ -266,15 +275,15 @@ not kept.
 
 Comments are part of the simplification. The goal is for the next reader —
 human or agent — to follow the file without re-deriving what each region is
-for. Add
-comments that carry information the code cannot express; delete the rest.
-Every comment must earn its tokens: it either orients the reader or it is
-noise.
+for. Every comment must convey the context the code cannot express: what the
+piece of code does or tries to achieve, what it returns, or why it exists.
+A comment that restates the code is noise — delete it.
 
-### Function comments
+### One-line comments
 
-Put a one-line comment above a function stating its context, what it does,
-and what it returns — the three questions the next reader asks:
+Above a function or block of code that is not a helper, utility, exported,
+or public function, put a one-line comment: minimal, plain English,
+top-level — what the code does or tries to achieve, and what it returns:
 
 ```typescript
 // Fetch the user's team from the DB, or null when the user has no team.
@@ -283,24 +292,21 @@ function getTeamForUser(userId: string): Promise<Team | null> {
 }
 ```
 
-Skip the comment when the name and signature already answer all three
-questions (`getUser(id: string): Promise<User>` needs nothing). A restatement
-of the name (`// get the user`) is noise — delete it, as in Step 2's table.
+Skip the comment when the name and signature already answer both questions
+(`getUser(id: string): Promise<User>` needs nothing).
 
-### JSDoc for utilities and reusable pieces
+### JSDoc for helpers and utilities
 
-Use JSDoc on exported, public, utility, and non-obvious functions, and on
+Use JSDoc on helpers, utilities, and exported or public functions — including
 reusable components that live in the same file even when they are not
-exported. Explain the context, why the function exists, its inputs, its
-return value or changes, and important failure behavior. For a component,
-name what it renders and its key props.
+exported. JSDoc is slightly more technical than a one-liner: it may name
+parameter and return types, explain the context and why the function exists,
+and note failure behavior. For a component, name what it renders and its key
+props. For a small helper, a single-line JSDoc is enough:
 
 ```typescript
-/**
- * Convert a duration to whole seconds, rounding up. Used by the retry
- * backoff to guarantee a minimum wait. Throws on negative durations.
- */
-function durationToSeconds(duration: Duration): number {
+/** Clamp `value` to `[min, max]` and return the clamped number. */
+function clamp(value: number, min: number, max: number): number {
   ...
 }
 ```
@@ -329,42 +335,49 @@ async function updateInvoice(req: Request, res: Response): Promise<void> {
 
 ### File section comments
 
-In a TS file, put a one-liner above each region — types, interfaces, global
-variables — so the file's sections are visible at a glance:
+Put one single-line comment above each major section of a file — types,
+contracts, module-level constants — immediately before the section it labels.
+Use plain labels such as `// Types`, `// Global constants`, or `// Request handlers`:
 
 ```typescript
-// Domain types
+// Types
 type Plan = 'free' | 'pro';
-
-// API contracts
-interface CreateUserRequest {
+type CreateUserRequest = {
   email: string;
   plan: Plan;
-}
+};
 
-// Module-level constants
+// Global constants
 const MAX_RETRIES = 3;
+
+// Request handlers
+function handleRequest(request: Request): Response {
+  ...
+}
 ```
 
 ### Markup comments
 
-Do not add comments inside markup. The only exception is a short comment
-separating layout sections, e.g. `{/* heading */}` right before the nav bar.
+In JSX, TSX, HTML, and other markup, use exactly one comment form: a short
+`{/* heading */}` separator between major layout regions, immediately before
+the section it labels. Keep logic, rationale, accessibility notes, and
+debugging notes in surrounding code or component documentation.
 
 ### Style
 
 - Write for the next reader, who is often an agent with a limited context
   window: plain words, no jargon, nothing clever.
-- A comment carries what the code cannot express. If the code already says
-  it, delete the comment.
-- Do not comment every line or every function. Comments that restate the
-  obvious pollute context and irritate reviewers — the opposite of the goal.
+- Do not comment every line or every function.
+- No separator comments: no `// ---`, repeated dashes, boxed banners, or
+  multi-line blocks. Move detailed rationale into surrounding documentation
+  or code structure.
 - Keep comment lines at 80 characters or fewer.
 
 ## Error Handling
 
-When a simplification touches an error path, apply these rules. Error
-messages have two audiences, and each gets different treatment.
+When a simplification touches an error path, apply these rules — this is the
+one sanctioned exception to Preserve Behavior Exactly. Error messages have
+two audiences, and each gets different treatment.
 
 ### User-facing errors
 
@@ -403,7 +416,7 @@ BEFORE SIMPLIFYING, ANSWER:
 - What are the edge cases and error paths?
 - Are there tests that define the expected behavior?
 - Why might it have been written this way? (Performance? Platform constraint? Historical reason?)
-- Check git blame: what was the original context for this code?
+- For recent modifications, check git blame: what was the original context for this code?
 ```
 
 If you can't answer these, you're not ready to simplify. Read more context first.
@@ -453,19 +466,21 @@ Scan for these patterns — each one is a concrete signal, not a vague smell:
 
 ### Step 3: Apply Changes Incrementally
 
-Make one simplification at a time. Run tests after each change. **Submit refactoring changes separately from feature or bug fix changes.** A PR that refactors and adds a feature is two PRs — split them.
+Make one simplification at a time. Run tests after each change. **Refactoring changes stay separate from feature or bug fix changes** — a PR that refactors and adds a feature is two PRs.
 
 ```
 FOR EACH SIMPLIFICATION:
 1. Make the change
 2. Run the test suite
-3. If tests pass → commit (or continue to next simplification)
+3. If tests pass → continue to the next simplification
 4. If tests fail → revert and reconsider
 ```
 
 Avoid batching multiple simplifications into a single untested change. If something breaks, you need to know which simplification caused it.
 
-**The Rule of 500:** If a refactoring would touch more than 500 lines, invest in automation (codemods, sed scripts, AST transforms) rather than making the changes by hand. Manual edits at that scale are error-prone and exhausting to review.
+**Never commit on your own.** Ask the user for explicit permission before any commit or PR, and follow the user's preference for how changes are split between them.
+
+**The Rule of 500:** A refactoring that would touch more than 500 lines needs a PRD approved before implementation — unless the user declines one — and is split across multiple commits or PRs. Use automation (codemods, AST transforms) rather than hand edits; at that scale manual changes are error-prone and exhausting to review.
 
 ### Step 4: Verify the Result
 
@@ -474,12 +489,9 @@ After all simplifications, step back and evaluate the whole:
 ```
 COMPARE BEFORE AND AFTER:
 - Is the simplified version genuinely easier to understand?
-- Did you introduce any new patterns inconsistent with the codebase?
-- Is the diff clean and reviewable?
-- Would a teammate approve this change?
 ```
 
-If the "simplified" version is harder to understand or review, revert. Not every simplification attempt succeeds.
+If the "simplified" version is harder to understand or review, revert.
 
 ## Language-Specific Guidance
 
@@ -588,11 +600,11 @@ function UserBadge({ user }: Props) {
   const label = user.isAdmin ? 'Admin' : 'User';
   return <Badge variant={variant}>{label}</Badge>;
 }
-
-// SIMPLIFY: Prop drilling through intermediate components
-// Before — consider whether context or composition solves this better.
-// This is a judgment call — flag it, don't auto-refactor.
 ```
+
+Prop drilling through intermediate components is a judgment call — consider
+whether context or composition solves it better, and flag it rather than
+auto-refactoring.
 
 ## Common Rationalizations
 
@@ -603,7 +615,7 @@ function UserBadge({ user }: Props) {
 | "I'll just quickly simplify this unrelated code too" | Unscoped simplification creates noisy diffs and risks regressions in code you didn't intend to change. Stay focused. |
 | "The types make it self-documenting" | Types document structure, not intent. A well-named function explains *why* better than a type signature explains *what*. |
 | "This abstraction might be useful later" | Don't preserve speculative abstractions. If it's not used now, it's complexity without value. Remove it and re-add when needed. |
-| "The original author must have had a reason" | Maybe. Check git blame — apply Chesterton's Fence. But accumulated complexity often has no reason; it's just the residue of iteration under pressure. |
+| "The original author must have had a reason" | Maybe. Apply Chesterton's Fence — and for recent modifications, check git blame. But accumulated complexity often has no reason; it's just the residue of iteration under pressure. |
 | "I'll refactor while adding this feature" | Separate refactoring from feature work. Mixed changes are harder to review, revert, and understand in history. |
 | "A small new library would make this cleaner" | Simplification never adds dependencies. Check the codebase, the standard library, and installed dependencies first; if none fits, the current version stays. |
 | "The browser has a native component for this" | Native UI behavior varies browser to browser. Keep the established external component; a native swap trades cross-browser consistency for a smaller diff. |
