@@ -25,7 +25,7 @@ async function addItemToCart(req: Request, res: Response): Promise<Response> {
 }
 ```
 
-3. **Comment size and quality.** Keep comments small, concise, and informative. A good comment gives context. A weak comment repeats the function name, next line, or obvious syntax; uses a vague label such as `// Handle edge case`; records temporary history; or describes behavior the code does not enforce.
+3. **Comment size and quality.** Keep comments small, concise, and informative. State one fact, decision, constraint, or action per comment. Use a clear subject and an active verb. Write instructions as commands. A good comment gives context. A weak comment repeats the function name, next line, or obvious syntax; uses a vague label such as `// Handle edge case`; records temporary history; or describes behavior the code does not enforce.
 
 4. **File sections.** Use one single-line comment above each major section of a file, immediately before the section it labels. Use plain labels such as `// Types`, `// Global constants`, or `// Request handlers`.
 
