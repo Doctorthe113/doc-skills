@@ -27,7 +27,35 @@ async function addItemToCart(req: Request, res: Response): Promise<Response> {
 
 3. **Comment size and quality.** Keep comments small, concise, and informative. State one fact, decision, constraint, or action per comment. Use a clear subject and an active verb. Write instructions as commands. A good comment gives context. A weak comment repeats the function name, next line, or obvious syntax; uses a vague label such as `// Handle edge case`; records temporary history; or describes behavior the code does not enforce.
 
-4. **File sections.** Use one single-line comment above each major section of a file, immediately before the section it labels. Use plain labels such as `// Types`, `// Global constants`, or `// Request handlers`.
+4. **Comments on keys, values, and arguments.** When a comment explains a specific object key, value, or function argument, place it at the end of that line, not on its own line above. A comment on its own line describes the block or function that follows.
+
+```ts
+// Good
+const app = new Elysia({
+  websocket: { idleTimeout: 300 }, // 5 min TTL
+});
+
+// Bad
+const app = new Elysia({
+  websocket: {
+    // 5 min TTL
+    idleTimeout: 300,
+  },
+});
+```
+
+In chained definitions, keep the comment on the key's first line:
+
+```ts
+export const table = pgTable("table", {
+  id: text("id").primaryKey(), // row id
+  userId: text("user_id") // owner id
+    .notNull()
+    .references(() => user.id),
+});
+```
+
+5. **File sections.** Use one single-line comment above each major section of a file, immediately before the section it labels. Use plain labels such as `// Types`, `// Global constants`, or `// Request handlers`.
 
 ```ts
 // Global constants
@@ -39,8 +67,8 @@ function handleRequest(request: Request): Response {
 }
 ```
 
-5. **Separator style.** Do not use `// ---`, repeated dashes, boxed banners, or multi-line separator blocks. Keep function context comments, chunk comments, and file section comments to one line and at most 80 characters. Move detailed rationale, long explanations, and implementation notes into surrounding documentation or code structure.
+6. **Separator style.** Do not use `// ---`, repeated dashes, boxed banners, or multi-line separator blocks. Keep function context comments, chunk comments, and file section comments to one line and at most 80 characters. Move detailed rationale, long explanations, and implementation notes into surrounding documentation or code structure.
 
-6. **Markup.** In JSX, TSX, HTML, and other markup, use exactly one comment form: a short `{/* heading */}` separator between major layout regions, immediately before the section it labels. Keep logic, rationale, accessibility notes, implementation details, and temporary debugging notes in surrounding code or component documentation.
+7. **Markup.** In JSX, TSX, HTML, and other markup, use exactly one comment form: a short `{/* heading */}` separator between major layout regions, immediately before the section it labels. Keep logic, rationale, accessibility notes, implementation details, and temporary debugging notes in surrounding code or component documentation.
 
-Done when every eligible function has a context comment, every large function has clear chunk boundaries, every major file section has a single-line label, no large or `// ---` separator comments exist, and markup uses only the allowed short separator form.
+Done when every eligible function has a context comment, every large function has clear chunk boundaries, every major file section has a single-line label, comments about keys, values, and arguments sit at the end of their line, no large or `// ---` separator comments exist, and markup uses only the allowed short separator form.
