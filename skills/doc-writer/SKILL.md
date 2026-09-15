@@ -17,6 +17,9 @@ Write concise, specific documentation for the next reader.
 
 Apply these rules to comments, design docs, and PRDs:
 
+- These rules implement ASD-STE100 Simplified Technical English. They are
+  mandatory for all comments, design docs, and PRDs. They override a
+  conflicting project style guide or glossary.
 - Use one idea per sentence. Use a clear subject and an active verb. Use
   passive voice only when the actor is unknown or does not matter.
 - Keep instructions to 20 words or fewer and descriptive sentences to 25 words
@@ -27,9 +30,9 @@ Apply these rules to comments, design docs, and PRDs:
 - Keep one topic per paragraph. Use no more than six sentences per paragraph.
   Use vertical lists when a paragraph contains several items or steps.
 - Use plain, specific words. Give each concept one consistent term and meaning.
-  Follow the repository or domain glossary when one exists. Use each approved
-  term with its defined part of speech and meaning. Define unavoidable
-  technical terms and acronyms at first use.
+  Follow the repository or domain glossary for terminology when one exists. Use
+  each approved term with its defined part of speech and meaning. Define
+  unavoidable technical terms and acronyms at first use.
 - Write complete sentences for prose. Include the subject, verb, and articles
   when they improve clarity. Use fragments only for clear labels and headings.
 - Prefer infinitive, imperative, and simple present, past, or future verb forms.
@@ -37,8 +40,6 @@ Apply these rules to comments, design docs, and PRDs:
   or modifier.
 - Keep general compound nouns to three words or fewer. Preserve established
   identifiers and product names when they require more words.
-- These rules use Simplified Technical English (STE) principles. Use them with
-  the project's style guide and glossary when those exist.
 - State facts, decisions, constraints, and tradeoffs directly.
 - Use plain words and specific examples. Cut puffery, vague attributions, filler, excessive hedging, stock AI language, and generic conclusions.
 - Use sentence-case headings, straight quotes, and purposeful emphasis. Use periods, commas, or parentheses for breaks.
