@@ -1,6 +1,6 @@
 ---
 name: simplify
-description: Simplify code for clarity without changing behavior, and apply type, naming, comment, and error-handling conventions. Use when refactoring working code that is harder to read, maintain, or extend than it should be, when reviewing code with accumulated complexity, or when cleaning up comments or error handling.
+description: Simplify working code after feature implementation or during review when complexity, duplication, types, naming, comments, or error handling need cleanup; preserve behavior except for convention-aligned error-handling improvements.
 ---
 
 # Simplify

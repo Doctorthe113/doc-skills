@@ -1,6 +1,6 @@
 ---
 name: btw
-description: Answer a user's side question briefly without changing files or the active task.
+description: Answer a user's side question briefly without changing files or the active task. Only user can invoke this skill
 disable-model-invocation: true
 ---
 
