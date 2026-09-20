@@ -9,7 +9,7 @@ This is my skills repo. Each skill lives in `skills/<name>/SKILL.md`.
 | [`btw`](skills/btw/SKILL.md) | Manual | Answer a side question briefly in ELI5 style without changing files or the active task. |
 | [`code-reviewer`](skills/code-reviewer/SKILL.md) | Automatic | Review a small set of local changes for bugs, project-rule violations, and scope creep. It requires deep reading, two analysis passes, reproduction scenarios, and reports only findings with confidence of at least 80. |
 | [`doc-writer`](skills/doc-writer/SKILL.md) | Automatic | Write useful code comments, numbered Markdown docs for features and refactors, and PRDs after requirements are clear. It includes the repository's comment guidance and requires ASD-STE100 Simplified Technical English. |
-| [`simplify`](skills/simplify/SKILL.md) | Automatic | Reduce code complexity without changing behavior, with guidance for clarity, types, naming, comments, error handling, and verification. |
+| [`simplify`](skills/simplify/SKILL.md) | Automatic | Simplify changed or named code through a bounded workflow that preserves observable behavior. |
 | [`thermo-nuclear-code-quality-review`](skills/thermo-nuclear-code-quality-review/SKILL.md) | Manual | Run an unusually strict maintainability review focused on structural simplification, abstraction quality, file size, and spaghetti-condition growth. |
 
 ## Code review skills
