@@ -8,7 +8,8 @@ disable-model-invocation: true
 
 Handle only the question in `$ARGUMENTS`.
 
-- Answer directly in simple words and as few sentences as needed.
+- Answer in ELI5 style: simple words, short sentences, no jargon, and an
+  example when it helps. Keep the answer as short as the question allows.
 - Use the context already available. If it is not enough, say so briefly or ask one focused question.
 - Keep the active task unchanged: preserve its plan, files, decisions, and result.
 - Use this as a read-only side channel: make no edits, run no commands, and invoke no other skills.

@@ -15,36 +15,9 @@ Write concise, specific documentation for the next reader.
 
 ## Prose rules
 
-Apply these rules to comments, design docs, and PRDs:
-
-- These rules implement ASD-STE100 Simplified Technical English. They are
-  mandatory for all comments, design docs, and PRDs. They override a
-  conflicting project style guide or glossary.
-- Use one idea per sentence. Use a clear subject and an active verb. Use
-  passive voice only when the actor is unknown or does not matter.
-- Keep instructions to 20 words or fewer and descriptive sentences to 25 words
-  or fewer. Split longer sentences when they contain more than one action,
-  condition, or result.
-- Write one instruction per sentence. Start safety instructions with a clear
-  command or condition.
-- Keep one topic per paragraph. Use no more than six sentences per paragraph.
-  Use vertical lists when a paragraph contains several items or steps.
-- Use plain, specific words. Give each concept one consistent term and meaning.
-  Follow the repository or domain glossary for terminology when one exists. Use
-  each approved term with its defined part of speech and meaning. Define
-  unavoidable technical terms and acronyms at first use.
-- Write complete sentences for prose. Include the subject, verb, and articles
-  when they improve clarity. Use fragments only for clear labels and headings.
-- Prefer infinitive, imperative, and simple present, past, or future verb forms.
-  Use auxiliary verbs only when needed, and use `-ing` only as a technical noun
-  or modifier.
-- Keep general compound nouns to three words or fewer. Preserve established
-  identifiers and product names when they require more words.
-- State facts, decisions, constraints, and tradeoffs directly.
-- Use plain words and specific examples. Cut puffery, vague attributions, filler, excessive hedging, stock AI language, and generic conclusions.
-- Use sentence-case headings, straight quotes, and purposeful emphasis. Use periods, commas, or parentheses for breaks.
-- Keep prose free of decorative emoji, forced "not just X, it is Y" framing, forced groups of three, synonym cycling, false ranges, and em dash punctuation.
-- Self-audit once as a skeptical teammate. Replace anything padded, vague, evasive, or more certain than the evidence.
+Write all comments, design docs, and PRDs in ASD-STE100 Simplified Technical
+English. This standard is mandatory and overrides a conflicting project style
+guide or glossary.
 
 ## Branches
 
