@@ -7,7 +7,7 @@ description: Simplify working code after feature implementation or during review
 
 ## Overview
 
-Simplify code by reducing complexity while preserving exact behavior. The goal is not fewer lines — it's code that is easier to read, understand, modify, and debug. Comments are in scope: add the ones that carry context the code cannot express, and delete the ones that restate it. Write every comment and all other prose in ASD-STE100 Simplified Technical English. The repository glossary and conventions take precedence over the standard for terminology and names.
+Simplify code by reducing complexity while preserving exact behavior. The goal is not fewer lines — it's code that is easier to read, understand, modify, and debug. Comments are in scope: add the ones that carry context the code cannot express, and delete the ones that restate it.
 
 ## When to Use
 
@@ -273,11 +273,14 @@ not kept.
 
 ## Comments
 
-Comments are part of the simplification. The goal is for the next reader —
-human or agent — to follow the file without re-deriving what each region is
-for. Every comment must convey the context the code cannot express: what the
-piece of code does or tries to achieve, what it returns, or why it exists.
-A comment that restates the code is noise — delete it.
+Comments are part of the simplification. Write comments and all other prose
+in ASD-STE100 Simplified Technical English. The repository glossary and
+conventions take precedence over the standard for terminology and names. The
+goal is for the next reader — human or agent — to follow the file without
+re-deriving what each region is for. Every comment must convey the context the
+code cannot express: what the piece of code does or tries to achieve, what it
+returns, or why it exists. A comment that restates the code is noise — delete
+it.
 
 ### One-line comments
 
