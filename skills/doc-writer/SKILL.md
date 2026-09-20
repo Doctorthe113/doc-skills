@@ -16,8 +16,8 @@ Write concise, specific documentation for the next reader.
 ## Prose rules
 
 Write all comments, design docs, and PRDs in ASD-STE100 Simplified Technical
-English. This standard is mandatory and overrides a conflicting project style
-guide or glossary.
+English. The repository glossary and conventions take precedence over the
+standard for terminology and names.
 
 ## Branches
 
