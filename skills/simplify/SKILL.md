@@ -7,7 +7,7 @@ description: Simplify working code after feature implementation or during review
 
 ## Overview
 
-Simplify code by reducing complexity while preserving exact behavior. The goal is not fewer lines — it's code that is easier to read, understand, modify, and debug. Comments are in scope: add the ones that carry context the code cannot express, and delete the ones that restate it. Write every comment and all other prose in ASD-STE100 Simplified Technical English.
+Simplify code by reducing complexity while preserving exact behavior. The goal is not fewer lines — it's code that is easier to read, understand, modify, and debug. Comments are in scope: add the ones that carry context the code cannot express, and delete the ones that restate it. Write every comment and all other prose in ASD-STE100 Simplified Technical English. The repository glossary and conventions take precedence over the standard for terminology and names.
 
 ## When to Use
 
@@ -366,7 +366,7 @@ debugging notes in surrounding code or component documentation.
 ### Style
 
 - Write for the next reader, who is often an agent with a limited context
-  window: plain words, no jargon, nothing clever.
+  window. Use approved ASD-STE100 words, not clever phrasing.
 - Do not comment every line or every function.
 - No separator comments: no `// ---`, repeated dashes, boxed banners, or
   multi-line blocks. Move detailed rationale into surrounding documentation
