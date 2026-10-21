@@ -77,6 +77,8 @@ Apply the baseline prompt above, plus these explicit review rules:
    - Prefer `if` branches over nested ternaries; a second `?` is the signal to rewrite into explicit branches or a small named function.
    - Let inference type maps; derive fixed keys with `keyof typeof` from the `as const` source instead of hand-writing them; reserve `Record<string, T>` for genuinely dynamic keys.
    - Flag vague or unit-less names (`data`, `temp`, `timeout`), booleans without an `is`/`has` prefix (`isValid` and `hasPermission` are the required shape), and ornate names doing too much.
+   - Flag verbose names built from noun clusters of more than three words (`currentUserAccountProfile`); the shortest unambiguous name wins (`user`), and extra qualifiers belong in a nearby value.
+   - Flag a word that carries two meanings in the same change (`config` for a settings object and for a parsed file); give each concept its own word.
 
 9. **Enforce comment discipline.**
    - Comments must carry what the code cannot express; delete restatements of the code.
@@ -135,7 +137,7 @@ Escalate findings when you see:
 - Partial-update logic that leaves state less atomic than necessary.
 - `enum` usage where a string literal union is the whole contract, or widened literals that should be locked with `as const`.
 - Nested ternaries where `if` branches or a small named function would read faster.
-- Vague, unit-less, or misleading names.
+- Vague, unit-less, misleading, or verbose names.
 - Comments that restate the code, missing JSDoc on exported or non-obvious functions, or section comments describing mechanics instead of goals.
 - Valid-state-first functions where fail-early guard clauses would flatten the nesting.
 - User-facing errors that leak stack traces, HTTP codes, or internal names; internal errors that log too little or fail ungracefully.

@@ -46,10 +46,13 @@ When the change set includes TypeScript, apply every rule below as a project-gui
 
 **Naming**
 
-- Descriptive, familiar names with units (`timeoutMs`, `maxRetries`, `sizeBytes`).
+- Short, familiar names with units (`timeoutMs`, `maxRetries`, `sizeBytes`).
 - Boolean predicates: `is` or `has` (`isValid`, `hasPermission`, `isArchived`).
 - Construction and mutation: `create`, `get`, `update` (`createSession`, `getUser`, `updateStatus`).
-- Flag vague names (`data`, `item`, `result`, `temp`, `handle`) when a specific one is available, and ornate names that do too much (`getUserProfileFromCacheIfFresh`).
+- Flag vague names (`data`, `item`, `result`, `temp`, `handle`) when a specific one is available.
+- Flag ornate names that do too much (`getUserProfileFromCacheIfFresh`).
+- Flag a noun cluster of more than three words (`currentUserAccountProfile`). Use the shortest name that stays unambiguous (`user`), and carry the extra qualifier in a nearby value when the scope allows.
+- Give one word one meaning. Flag a word that carries two concepts in the same change (`config` for a settings object and for a parsed file), and reuse one word for the same concept across the change.
 
 ## Multi-pass analysis
 

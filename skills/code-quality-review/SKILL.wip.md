@@ -103,3 +103,6 @@ example
 5. Use `get` prefix for functions that return a value or fetches data. For example
    `getUserData()`, `getProfile()`.
 6. Names should reduce the reader's mental work
+7. Keep names short. Avoid noun clusters of more than three words, give one word one
+   meaning, and pick the shortest word that stays unambiguous. Prefer `user` over
+   `currentUserAccountProfile` and `retry` over `maxRetryAttemptCount`.

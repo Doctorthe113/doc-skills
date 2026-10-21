@@ -33,14 +33,19 @@ report the uncertainty.
 
 Use this order. Stop when no change is a clear improvement.
 
-| Priority | Look for | Prefer |
-| --- | --- | --- |
-| Delete | Dead branches, unused values, pass-through wrappers, speculative options | Remove verified dead code and empty layers |
-| Straighten | Deep nesting, repeated checks, long mixed-purpose functions | Guard clauses and small single-purpose functions |
-| Reuse | Logic with the same meaning in multiple places | An existing canonical helper, then one shared helper |
-| Clarify | Misleading names, hidden units, dense expressions, nested ternaries | Familiar names, explicit branches, useful intermediate values |
-| Tighten types | Duplicated shapes, unsafe casts, types wider than the data | Inferred local types and named boundary contracts |
-| Prune comments | Comments that restate code or describe old behavior | Intent, constraints, and non-obvious reasons only |
+1. **Delete** — dead branches, unused values, pass-through wrappers,
+   speculative options. Remove verified dead code and empty layers.
+2. **Straighten** — deep nesting, repeated checks, long mixed-purpose
+   functions. Prefer guard clauses and small single-purpose functions.
+3. **Reuse** — logic with the same meaning in multiple places. Prefer an
+   existing canonical helper, then one shared helper.
+4. **Clarify** — misleading or verbose names, hidden units, dense
+   expressions, nested ternaries. Prefer short familiar names, explicit
+   branches, and useful intermediate values.
+5. **Tighten types** — duplicated shapes, unsafe casts, types wider than the
+   data. Prefer inferred local types and named boundary contracts.
+6. **Prune comments** — comments that restate code or describe old behavior.
+   Keep intent, constraints, and non-obvious reasons only.
 
 Similar syntax is not enough reason to extract a helper. Share logic only when
 the copies must change together. Keep an abstraction when a current caller,
@@ -63,6 +68,9 @@ Use these rules while editing:
 - Keep functions single-purpose.
 - Improve a name only when it is vague or misleading. Match local vocabulary,
   and include units such as `timeoutMs` when they prevent ambiguity.
+- Keep names short. Avoid noun clusters longer than three words, give one word
+  one meaning, and pick the shortest word that stays unambiguous: `user`, not
+  `userAccountProfile`; `retry`, not `retryAttemptCount`.
 - Replace a nested ternary with branches or a named function. Keep a single
   ternary when it is the clearest form.
 - Remove redundant type syntax. Keep explicit types at reused or untrusted
@@ -87,6 +95,7 @@ Review the final diff and confirm all of these conditions:
 - Each remaining abstraction has a present use.
 - Repeated logic is shared only when it has one meaning.
 - Names, types, branches, and comments reduce the reader's mental work.
+- No name carries a noun cluster longer than three words.
 - Tests, type checks, lint, and build checks relevant to the scope pass.
 
 If the result is not clearly easier to understand, revert that simplification.
@@ -116,3 +125,10 @@ function getStatusLabel(item: Item): string {
 
 Keep two similar operations separate when they have different reasons to
 change. Extract one helper only when both operations implement the same rule.
+
+Name a value in as few words as stay clear:
+
+```typescript
+const user = await loadUser(id);   // not currentUserAccountProfile
+const retries = 3;                 // not maxRetryAttemptCount
+```
